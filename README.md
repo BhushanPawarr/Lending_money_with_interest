@@ -6,9 +6,13 @@ Tech-stack: Ruby on Rails , sidekiq, whenever, active job, devise gem
 1. Configure database 
 
   go to -> config/database.yml
+  
    add credetial
+   
    host: localhost
+
    username: dbname
+   
    password: dbpassword
    
 2. Create Database 
