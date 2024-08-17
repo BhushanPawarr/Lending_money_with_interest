@@ -40,6 +40,7 @@ Tech-stack: Ruby on Rails , sidekiq, whenever, active job, devise gem
    # use below creadentials for admin login
 
    username: admin@gmail.com
+   
    password: Admin@123
 
 9. sign_in the User
@@ -55,7 +56,8 @@ Tech-stack: Ruby on Rails , sidekiq, whenever, active job, devise gem
 
     # A. open rails console 
 
-     command -> rails c 
+     command -> rails c
+   
      run the job by using this -->  CalculateInterestJob.perform   
 
      [by using this job you can get total amount every 5 minutes]
