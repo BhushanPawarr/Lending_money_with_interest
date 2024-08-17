@@ -1,0 +1,15 @@
+<h2>Adjust Loan Terms</h2>
+
+<%= form_with url: adjust_loan_path(@loan), method: :patch, local: true do |f| %>
+  <div>
+    <%= f.label :amount, "Loan Amount" %>
+    <%= f.number_field :amount, value: @loan.amount, required: true %>
+  </div>
+  <div>
+    <%= f.label :interest_rate, "Interest Rate (%)" %>
+    <%= f.number_field :interest_rate, value: @loan.interest_rate, step: 0.01, required: true %>
+  </div>
+  <div>
+    <%= f.submit "Submit Adjustment" %>
+  </div>
+<% end %>

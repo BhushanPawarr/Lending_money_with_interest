@@ -1,0 +1,18 @@
+<body class="main-body">
+  <h2 class="heading">Request a New Loan</h2>
+  <div class="input-form">
+    <%= form_with model: @loan, url: request_loan_path, method: :post, local: true do |f| %>
+      <div>
+        <%= f.label :amount, "Loan Amount" %>
+        <%= f.number_field :amount, required: true %>
+      </div>
+      <div>
+        <%= f.label :interest_rate, "Interest Rate (%)" %>
+        <%= f.number_field :interest_rate, step: 0.01, required: true %>
+      </div>
+      <div>
+        <%= f.submit "Request Loan" %>
+      </div>
+    <% end %>
+  </div>
+</body>

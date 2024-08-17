@@ -1,0 +1,48 @@
+<h2>Admin Dashboard</h2>
+
+<p>Admin Wallet Balance: <%= number_to_currency(current_user.wallet_balance) %></p>
+
+<h3>Loan Requests</h3>
+<table>
+  <thead>
+    <tr>
+      <th>User</th>
+      <th>Loan Amount</th>
+      <th>Interest Rate</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @loans.each do |loan| %>
+      <tr>
+        <td><%= loan.user.email %></td>
+        <td><%= number_to_currency(loan.amount) %></td>
+        <td><%= loan.interest_rate %>%</td>
+        <td><%= loan.status.humanize %></td>
+        <td>
+          <% if loan.requested? %>
+            <%= button_to 'Approve', approve_loan_path(loan), method: :patch %>
+            <%= button_to 'Reject', reject_loan_path(loan), method: :patch %>
+            <%= link_to 'Adjust', show_loan_path(loan) %>
+          <% end %>
+        
+          <% if loan.readjustment_requested? %>
+            <%= form_with url: handle_readjustment_request_path(loan), method: :patch do %>
+              <%= hidden_field_tag :reject, 'true' %>
+              <%= submit_tag 'Reject Readjustment' %>
+            <% end %>
+            
+            <%= form_with url: handle_readjustment_request_path(loan), method: :patch do %>
+              <%= text_field_tag :loan_amount, loan.amount %>
+              <%= text_field_tag :interest_rate, loan.interest_rate %>
+              <%= hidden_field_tag :reject, 'false' %>
+              <%= submit_tag 'Make Adjustment' %>
+            <% end %>
+            <%end%>
+
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

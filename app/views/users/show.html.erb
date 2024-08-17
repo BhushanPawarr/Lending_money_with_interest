@@ -1,0 +1,45 @@
+<!-- app/views/users/show.html.erb -->
+<h2>Welcome, <%= current_user.email %></h2>
+<p>Wallet Balance: <%= number_to_currency(current_user.wallet_balance) %></p>
+
+<h3>Your Loans</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Loan Amount</th>
+      <th>Interest Rate</th>
+      <th>total Interest Amount</th>
+      <th>total Amount</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% current_user.loans.each do |loan| %>
+      <tr>
+        <td><%= number_to_currency(loan.amount) %></td>
+        <td><%= loan.interest_rate %>%</td>
+        <td><%= loan.total_interest.round(2) %></td>
+        <td><%= loan.total_amount.round(2) %></td>
+        <td><%= loan.status.humanize %></td>
+        <td>
+          <% if loan.approved? %>
+            <%= button_to 'Accept Loan', accept_loan_user_loan_path(current_user, loan), method: :patch %>
+            <%= button_to 'Reject Loan', reject_loan_user_loan_path(current_user, loan), method: :patch %>
+          <% elsif loan.waiting_for_adjustment_acceptance? %>
+            <%= button_to 'Accept Adjustment', accept_adjustment_user_loan_path(current_user, loan), method: :patch %>
+            <%= button_to 'Reject Adjustment', reject_adjustment_user_loan_path(current_user, loan), method: :patch %>
+            <%= button_to 'Request Readjustment', request_readjustment_user_loan_path(current_user, loan), method: :patch %>
+          <% elsif loan.readjustment_requested? %>
+           <!-- Do not display any action buttons here for the user -->
+        <p>Readjustment requested, awaiting admin response.</p>
+          <% elsif loan.open? %>
+            <%= button_to 'Repay Loan', repay_loan_user_loan_path(current_user, loan), method: :patch %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to 'Request a New Loan', new_user_loan_path(current_user) %>

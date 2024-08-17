@@ -1,0 +1,4 @@
+:schedule:
+  calculate_interest:
+    cron: "*/1 * * * *"  # This means every 5 minutes
+    class: "CalculateInterestJob"
