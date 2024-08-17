@@ -35,13 +35,14 @@ Tech-stack: Ruby on Rails , sidekiq, whenever, active job, devise gem
 
    getting like this -->  http://127.0.0.1:3000
 
-7. sign_in the Admin 
+7. sign_in the Admin
+
    # use below creadentials for admin login
 
    username: admin@gmail.com
    password: Admin@123
 
-8. sign_in the User
+9. sign_in the User
 
   # use below creadentials for user login
 
