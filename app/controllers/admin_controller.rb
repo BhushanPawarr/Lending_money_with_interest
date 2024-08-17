@@ -5,6 +5,11 @@ class AdminController < ApplicationController
     @loans = Loan.order(created_at: :desc).limit(10) 
   end
 
+  def view_adjustments
+    @loan = Loan.find(params[:id])
+    @adjustments = @loan.adjustments
+  end
+
   def show_loan
     @loan = Loan.find_by(id: params[:id])
     if @loan.nil?
@@ -40,20 +45,24 @@ class AdminController < ApplicationController
   end
 
   def handle_readjustment_request
-    @loan = Loan.find(params[:id])
-
+    @loan = Loan.find(params[:id])   
     if params[:reject] == 'true'
-      @loan.update(status: :rejected)
-      redirect_to dashboard_path, notice: 'Loan has been rejected.'
+      if @loan.update(status: :rejected)
+        create_loan_adjustments(@loan)
+        redirect_to dashboard_path, notice: 'Loan has been rejected.'
+      else
+        redirect_to dashboard_path, alert: 'Unable to reject the loan.'
+      end
     else
       if @loan.update(loan_params.merge(status: :waiting_for_adjustment_acceptance))
+        create_loan_adjustments(@loan)
         redirect_to dashboard_path, notice: 'Adjustment made. Waiting for user acceptance.'
       else
         redirect_to dashboard_path, alert: 'Unable to make adjustment.'
       end
     end
   end
-  
+
   private
 
   def loan_params

@@ -1,6 +1,12 @@
 class UsersController < ApplicationController
   before_action :authenticate_user!
 
+  before_action :set_loan, only: [:view_adjustments]
+
+  def view_adjustments
+    @adjustments = @loan.adjustments
+  end
+
   def show
     @recent_loan = current_user.loans.order(created_at: :desc).first if current_user.user?
   end
@@ -46,20 +52,30 @@ class UsersController < ApplicationController
 
   def repay_loan
     @loan = current_user.loans.find(params[:id])
-    repayment_amount = [current_user.wallet_balance, (@loan.total_amount).round(2)].min
+    total_amount_due = @loan.total_amount.round(2)     
+    wallet_balance = current_user.wallet_balance.to_f
+    total_amount_due = total_amount_due.to_f
+
+    if wallet_balance >= total_amount_due
+      repayment_amount = total_amount_due
+    else
+      repayment_amount = wallet_balance
+    end
+  
     if repayment_amount > 0
-      current_user.update(wallet_balance: current_user.wallet_balance - repayment_amount)
+      current_user.update(wallet_balance: wallet_balance - repayment_amount)
       User.admin.first.update(wallet_balance: User.admin.first.wallet_balance + repayment_amount)
       @loan.update(status: :closed)
-      redirect_to user_path(current_user), notice: 'Loan repaid.'
+      redirect_to user_path(current_user), notice: 'Loan repaid successfully.'
     else
       redirect_to user_path(current_user), alert: 'Insufficient balance to repay the loan.'
     end
   end
-
+  
   def accept_adjustment
     @loan = current_user.loans.find(params[:id])
     if @loan.waiting_for_adjustment_acceptance? && @loan.update(status: :open)
+      create_loan_adjustments(@loan)
       current_user.update(wallet_balance: current_user.wallet_balance + @loan.amount)
       User.admin.first.update(wallet_balance: User.admin.first.wallet_balance - @loan.amount)
       redirect_to user_path(current_user), notice: 'Adjustment accepted and loan is now open.'
@@ -71,6 +87,7 @@ class UsersController < ApplicationController
   def reject_adjustment
     @loan = current_user.loans.find(params[:id])
     if @loan.waiting_for_adjustment_acceptance? && @loan.update(status: :rejected)
+      create_loan_adjustments(@loan)
       redirect_to user_path(current_user), notice: 'Adjustment rejected and loan is now closed.'
     else
       redirect_to user_path(current_user), alert: 'Unable to reject adjustment.'
@@ -79,14 +96,23 @@ class UsersController < ApplicationController
 
   def request_readjustment
     @loan = current_user.loans.find(params[:id])
-    if @loan.waiting_for_adjustment_acceptance? && @loan.update(status: :readjustment_requested)
-      redirect_to user_path(current_user), notice: 'Readjustment requested.'
+    if @loan.waiting_for_adjustment_acceptance?
+      if @loan.update(status: :readjustment_requested)
+        create_loan_adjustments(@loan)
+        redirect_to user_path(current_user), notice: 'Readjustment requested.'
+      else
+        redirect_to user_path(current_user), alert: 'Unable to request readjustment.'
+      end
     else
-      redirect_to user_path(current_user), alert: 'Unable to request readjustment.'
+      redirect_to user_path(current_user), alert: 'Cannot request readjustment at this stage.'
     end
   end
   
   private
+
+  def set_loan
+    @loan = Loan.find(params[:id])
+  end
 
   def loan_params
     params.require(:loan).permit(:amount, :interest_rate)

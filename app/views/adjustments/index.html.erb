@@ -1,0 +1,69 @@
+<h1>All Adjustments</h1>
+
+<% if current_user.admin? %>
+  <!-- Admin View: Show all adjustments -->
+  <% if @adjustments.any? %>
+    <table>
+      <thead>
+        <tr>
+          <th>Loan ID</th>
+          <th>Amount</th>
+          <th>Interest Rate</th>
+          <th>Created At</th>
+          <th>Adjust By</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @adjustments.each do |adjustment| %>
+          <tr>
+            <td><%= adjustment.loan_id %></td>
+            <td><%= adjustment.amount %></td>
+            <td><%= adjustment.interest_rate %></td>
+            <td><%= adjustment.created_at %></td>
+            <td><%= adjustment.made_by%></td>
+             <td><%= adjustment&.status%></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p>No adjustments found.</p>
+  <% end %>
+<% else %>
+  <!-- User View: Show only the current user's adjustments -->
+    
+  <% if current_user&.loans&.first&.adjustments&.any? %> 
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Loan ID</th>
+          <th>Amount</th>
+          <th>Interest Rate</th>
+          <th>Created At</th>
+           <th>Adjust By</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% current_user&.loans&.each do |loan| %>
+        <% loan&.adjustments&.each do |adjustment| %>
+          <tr>
+            <td><%= adjustment.id %></td>
+            <td><%= adjustment.loan_id %></td>
+            <td><%= adjustment.amount %></td>
+            <td><%= adjustment.interest_rate %></td>
+            <td><%= adjustment.created_at %></td>
+            <td><%= adjustment.made_by%></td>
+             <td><%= adjustment&.status%></td>
+          </tr>
+          <%end%>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p>No adjustments found.</p>
+  <% end %>
+<% end %>

@@ -1,5 +1,4 @@
 require 'sidekiq/web'
-
 Rails.application.routes.draw do
   mount Sidekiq::Web => '/sidekiq'
   devise_for :users
@@ -8,6 +7,10 @@ Rails.application.routes.draw do
   resources :users, only: [:show, :new] do
     resources :loans, only: [:new, :create], controller: 'users' do
       member do
+         get 'view_adjustments'
+         get 'loans/:id/adjustments', to: 'admin#view_adjustments', as: :loan_adjustments
+         get 'adjustments', to: 'adjustments#index'
+
         patch 'accept_loan'
         patch 'reject_loan'
         patch 'repay_loan'
@@ -20,6 +23,7 @@ Rails.application.routes.draw do
   end
 
   post 'request_loan', to: 'users#request_loan'
+  get 'adjustments', to: 'adjustments#index'
 
   # Admin-specific routes
   get 'dashboard', to: 'admin#dashboard'
@@ -29,4 +33,3 @@ Rails.application.routes.draw do
   patch 'handle_readjustment_request/:id', to: 'admin#handle_readjustment_request', as: :handle_readjustment_request
   get 'loans/:id', to: 'admin#show_loan', as: :show_loan
 end
-

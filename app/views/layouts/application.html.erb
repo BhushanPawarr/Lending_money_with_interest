@@ -11,10 +11,19 @@
   <header>
     <nav class="navbar">
       <div class="container">
-        <% if user_signed_in? && (current_user.user?||current_user.role == nil)%>
-          <%= link_to 'Dashboard', user_path(current_user), class: "nav-link" %>
-          <%= button_to 'Logout', destroy_user_session_path, method: :delete, class: "nav-button" %>
-        <%elsif%>
+        <% if user_signed_in? %>
+          <% if current_user.admin? %>
+            <%= link_to 'Dashboard', dashboard_path, class: "nav-link" %>
+            <%= link_to 'View All Adjustments', adjustments_path, class: "nav-link" %>
+          <% else %>
+            <%= link_to 'Dashboard', user_path(current_user), class: "nav-link" %>
+            <% loan = current_user.loans.first %>
+            <% if loan %>
+              <%= link_to 'View My Adjustments', adjustments_path, class: "nav-link" %>
+            <% else %>
+              <%= link_to 'View My Adjustments', '#', class: "nav-link disabled" %>
+            <% end %>
+          <% end %>
           <%= button_to 'Logout', destroy_user_session_path, method: :delete, class: "nav-button" %>
         <% else %>
           <%= link_to 'Login', new_user_session_path, class: "nav-link" %> |
@@ -53,11 +62,29 @@
     .navbar .nav-link, .navbar .nav-button {
       color: white;
       text-decoration: none;
-      margin-right: 15px;
+      margin: 0 10px;
+      padding: 8px 16px;
+      border-radius: 5px;
+      display: inline-block;
+    }
+
+    .navbar .nav-link:hover, .navbar .nav-button:hover {
+      background-color: #0056b3;
+    }
+
+    .navbar .nav-button {
+      background-color: #dc3545;
+      border: none;
+      cursor: pointer;
+      padding: 8px 16px;
+    }
+
+    .navbar .nav-button:hover {
+      background-color: #c82333;
     }
 
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
       padding: 20px;
       background-color: white;
