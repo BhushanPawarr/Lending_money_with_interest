@@ -4,7 +4,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
   has_many :loans
-
+  has_many :adjustments
   enum role: { user: 0, admin: 1 }
 
   validates :wallet_balance, presence: true, numericality: { greater_than_or_equal_to: 0 }

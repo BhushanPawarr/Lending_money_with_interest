@@ -33,8 +33,7 @@
 <% else %>
   <!-- User View: Show only the current user's adjustments -->
     
-  <% if current_user&.loans&.first&.adjustments&.any? %> 
-
+<% if current_user.loans.joins(:adjustments).any? %> 
     <table>
       <thead>
         <tr>
